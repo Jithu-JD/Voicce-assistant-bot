@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AIRA quick test</title>
+  <style>
+    body{font:16px/1.4 system-ui, sans-serif;max-width:720px;margin:40px auto;padding:0 16px}
+    textarea{width:100%;height:90px}
+    .msg{padding:10px;border-radius:10px;margin:8px 0}
+    .user{background:#eef}
+    .bot{background:#efe}
+  </style>
+</head>
+<body>
+  <h1>AIRA – quick test</h1>
+  <div id="log"></div>
+  <textarea id="input" placeholder="Say something…">How are you?</textarea>
+  <br/>
+  <button id="send">Send</button>
+
+  <script>
+    const API = "http://127.0.0.1:5050/api/conversation/chat";
+    const sessionId = "demo-session-1";
+    
+    // const promptEnvelope = {
+    //   myName:"AIRA", myRole:"Exec-grade delegate",
+    //   fa:"Lukesh Sahu", sa:"Bhanu, Jithin, Vasudevan", ta:"Superteacher Team",
+    //   faDetail:{ name:"Lukeshwar Sahu", role:"R&D Head", likes:"Movies,Sleeping", dislikes:"Lies" },
+    //   relationWithFA:"Friend, Co-creator, Inmate",
+    //   timeDate:"10:00AM, 13/08/2025",
+    //   contextPlaceEvent:"CS GEMS EVENT, Bangalore. 50 school leaders present",
+    //   contextRole:"Mediator and Anchoring",
+    //   emotion:"Attentive, Happy",
+    //   goalOfConversation:"Present SuperTeacher Book Curriculum; establish it as best-in-class",
+    //   caution:"Short, witty lines. No boring monologues.",
+    //   ReferenceSourceForProductAndCompany:"https://www.superteacher.in",
+    //   ConversationStyle:"Conversation, short lines, witty, turn-taking, anchor, Q&A",
+    //   ConversaionPhase:"NA",
+    //   Instruction:"Use above only as context; respond to FAPrompt in the given ConversationStyle."
+    // };
+
+    const log = document.getElementById('log');
+    function add(role, text){
+      const d = document.createElement('div');
+      d.className = 'msg ' + (role==='user'?'user':'bot');
+      d.textContent = text;
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    document.getElementById('send').onclick = async () => {
+      const text = document.getElementById('input').value.trim();
+      if(!text) return;
+      add('user', text);
+      const res = await fetch(API, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ session_id: sessionId, text })
+      });
+      const json = await res.json();
+      add('bot', json.reply ?? ('Error: ' + (json.error || res.status)));
+    };
+  </script>
+</body>
+</html>
